@@ -32,6 +32,14 @@ impl<'a> Index<usize> for MatRow<'a> {
     }
 }
 
+impl<'a> Index<usize> for MatRowMut<'a> {
+    type Output = u8;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.data[index]
+    }
+}
+
 impl<'a> IndexMut<usize> for MatRowMut<'a> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.data[index]
