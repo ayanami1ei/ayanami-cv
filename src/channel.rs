@@ -1,5 +1,6 @@
 use crate::pixel::Pixel;
 
-pub trait Channel<P:Pixel>{
+pub trait Channel{
     const CHANNEL: usize;
+    type PixelType:Pixel;
 }

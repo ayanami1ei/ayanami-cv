@@ -1,20 +1,24 @@
-use std::marker::PhantomData;
 use std::ops::{Index, IndexMut};
 
 use crate::channel::Channel;
 use crate::pixel::Pixel;
 
-pub struct Image<P: Pixel, C: Channel<P>> {
+pub struct Image<C: Channel> {
     weight: usize,
     height: usize,
-    data: Vec<P>,
-    _phantom: PhantomData<C>,
+    data: Vec<C::PixelType>,
 }
 
 // 行引用结构体
 pub struct ImageRow<'a, P: Pixel> {
     data: &'a [P],
     width: usize,
+}
+
+impl <'a, P:Pixel> ImageRow<'a, P>{
+    pub fn len(&self)->usize{
+        self.width
+    }
 }
 
 impl<'a, P: Pixel> Index<usize> for ImageRow<'a, P> {
@@ -32,6 +36,12 @@ impl<'a, P: Pixel> Index<usize> for ImageRow<'a, P> {
 pub struct ImageRowMut<'a, P: Pixel> {
     data: &'a mut [P],
     width: usize,
+}
+
+impl <'a, P:Pixel> ImageRowMut<'a, P>{
+    pub fn len(&self)->usize{
+        self.width
+    }
 }
 
 impl<'a, P: Pixel> Index<usize> for ImageRowMut<'a, P> {
@@ -54,16 +64,15 @@ impl<'a, P: Pixel> IndexMut<usize> for ImageRowMut<'a, P> {
     }
 }
 
-impl<P: Pixel, C: Channel<P>> Image<P, C>
+impl<C: Channel> Image<C>
 {
     pub fn new(weight: usize, height: usize) -> Self {
         let size = weight * height;
-        let data = vec![P::default(); size.into()];
+        let data = vec![C::PixelType::default(); size.into()];
         Image {
             weight,
             height,
             data,
-            _phantom: PhantomData,
         }
     }
 
@@ -75,16 +84,16 @@ impl<P: Pixel, C: Channel<P>> Image<P, C>
         self.height.into()
     }
 
-    pub fn data(&self) -> &[P] {
+    pub fn data(&self) -> &[C::PixelType] {
         &self.data
     }
 
-    pub fn data_mut(&mut self) -> &mut [P] {
+    pub fn data_mut(&mut self) -> &mut [C::PixelType] {
         &mut self.data
     }
     
     // 获取行引用
-    pub fn row(&self, row: usize) -> ImageRow<'_, P> {
+    pub fn row(&self, row: usize) -> ImageRow<'_, C::PixelType> {
         if row < self.height() {
             let start = row * self.width();
             let end = start + self.width();
@@ -98,7 +107,7 @@ impl<P: Pixel, C: Channel<P>> Image<P, C>
     }
     
     // 获取可变行引用
-    pub fn row_mut(&mut self, row: usize) -> ImageRowMut<'_, P> {
+    pub fn row_mut(&mut self, row: usize) -> ImageRowMut<'_, C::PixelType> {
         if row < self.height() {
             let start = row * self.width();
             let end = start + self.width();
