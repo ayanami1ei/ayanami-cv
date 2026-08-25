@@ -1,9 +1,9 @@
 use std::ops::{Index, IndexMut};
 
-use crate::channel::Channel;
+use crate::color_space::ColorSpace;
 use crate::pixel::Pixel;
 
-pub struct Image<C: Channel> {
+pub struct Image<C: ColorSpace> {
     weight: usize,
     height: usize,
     data: Vec<C::PixelType>,
@@ -15,8 +15,8 @@ pub struct ImageRow<'a, P: Pixel> {
     width: usize,
 }
 
-impl <'a, P:Pixel> ImageRow<'a, P>{
-    pub fn len(&self)->usize{
+impl<'a, P: Pixel> ImageRow<'a, P> {
+    pub fn len(&self) -> usize {
         self.width
     }
 }
@@ -38,8 +38,8 @@ pub struct ImageRowMut<'a, P: Pixel> {
     width: usize,
 }
 
-impl <'a, P:Pixel> ImageRowMut<'a, P>{
-    pub fn len(&self)->usize{
+impl<'a, P: Pixel> ImageRowMut<'a, P> {
+    pub fn len(&self) -> usize {
         self.width
     }
 }
@@ -64,8 +64,7 @@ impl<'a, P: Pixel> IndexMut<usize> for ImageRowMut<'a, P> {
     }
 }
 
-impl<C: Channel> Image<C>
-{
+impl<C: ColorSpace> Image<C> {
     pub fn new(weight: usize, height: usize) -> Self {
         let size = weight * height;
         let data = vec![C::PixelType::default(); size.into()];
@@ -91,7 +90,7 @@ impl<C: Channel> Image<C>
     pub fn data_mut(&mut self) -> &mut [C::PixelType] {
         bytemuck::cast_slice_mut(&mut self.data)
     }
-    
+
     // 获取行引用
     pub fn row(&self, row: usize) -> ImageRow<'_, C::PixelType> {
         if row < self.height() {
@@ -105,13 +104,13 @@ impl<C: Channel> Image<C>
             panic!("range out of bound")
         }
     }
-    
+
     // 获取可变行引用
     pub fn row_mut(&mut self, row: usize) -> ImageRowMut<'_, C::PixelType> {
         if row < self.height() {
             let start = row * self.width();
             let end = start + self.width();
-            let width=self.width();
+            let width = self.width();
             ImageRowMut {
                 data: &mut self.data[start..end],
                 width: width,
