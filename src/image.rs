@@ -84,12 +84,12 @@ impl<C: Channel> Image<C>
         self.height.into()
     }
 
-    pub fn data(&self) -> &[C::PixelType] {
-        &self.data
+    pub fn data(&self) -> &[u8] {
+        bytemuck::cast_slice(&self.data)
     }
 
     pub fn data_mut(&mut self) -> &mut [C::PixelType] {
-        &mut self.data
+        bytemuck::cast_slice_mut(&mut self.data)
     }
     
     // 获取行引用
