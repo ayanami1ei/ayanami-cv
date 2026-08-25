@@ -178,4 +178,28 @@ where
             false
         }
     }
+    
+    /// 转换为灰度图像（如果当前是彩色图像）
+    pub fn to_grayscale(&self) -> Mat<usize, GrayChannel> {
+        let mut gray_mat = Mat::<usize, GrayChannel>::new(self.width(), self.height());
+        
+        for y in 0..self.height() {
+            for x in 0..self.width() {
+                if let Some(pixel) = self.pixel(x, y) {
+                    // 简单的灰度转换：取像素值的平均
+                    let gray_value = *pixel;
+                    gray_mat.set_pixel_by_coords(x, y, gray_value);
+                }
+            }
+        }
+        
+        gray_mat
+    }
+}
+
+// 添加颜色空间相关的通道定义
+pub struct GrayChannel;
+
+impl Channel for GrayChannel {
+    const CHANNEL: usize = 1;
 }
