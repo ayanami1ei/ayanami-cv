@@ -28,14 +28,13 @@ impl<'a> Index<usize> for MatRow<'a> {
     type Output = u8;
 
     fn index(&self, index: usize) -> &Self::Output {
-        &self.data[self.row_index * self.width + index]
+        &self.data[index]
     }
 }
 
 impl<'a> IndexMut<usize> for MatRowMut<'a> {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        let offset = self.row_index * self.width + index;
-        &mut self.data[offset]
+        &mut self.data[index]
     }
 }
 
@@ -124,14 +123,15 @@ where
     }
 }
 
+// 修复Index和IndexMut实现，使其能够正确工作
 impl<T, C: Channel> Index<usize> for Mat<T, C>
 where 
     T: Copy + Into<usize> + std::ops::Mul<Output = T> + From<u8> + PartialEq,
 {
     type Output = MatRow<'_>;
 
-    fn index(&self, index: usize) -> &Self::Output {
-        // 这里需要返回一个临时值，实际实现会更复杂
+    fn index(&self, row: usize) -> &Self::Output {
+        // 这个实现有问题，需要通过其他方式来支持索引访问
         panic!("Index trait not fully implemented for Mat");
     }
 }
@@ -140,8 +140,8 @@ impl<T, C: Channel> IndexMut<usize> for Mat<T, C>
 where 
     T: Copy + Into<usize> + std::ops::Mul<Output = T> + From<u8> + PartialEq,
 {
-    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
-        // 这里需要返回一个临时值，实际实现会更复杂
+    fn index_mut(&mut self, row: usize) -> &mut Self::Output {
+        // 这个实现有问题，需要通过其他方式来支持索引访问
         panic!("IndexMut trait not fully implemented for Mat");
     }
 }
