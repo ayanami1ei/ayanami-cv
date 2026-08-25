@@ -197,10 +197,3 @@ where
         gray_mat
     }
 }
-
-// 添加颜色空间相关的通道定义
-pub struct GrayChannel;
-
-impl Channel for GrayChannel {
-    const CHANNEL: usize = 1;
-}
