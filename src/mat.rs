@@ -120,9 +120,10 @@ where
         if row < self.height() {
             let start = row * self.width();
             let end = start + self.width();
+            let width=self.width();
             Some(MatRowMut {
                 data: &mut self.data[start..end],
-                width: self.width(),
+                width: width,
                 row_index: row,
             })
         } else {
