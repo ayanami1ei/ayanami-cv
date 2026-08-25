@@ -121,29 +121,53 @@ where
             None
         }
     }
-}
+    
+    // 通过行和列访问像素值（类似二维数组语法）
+    pub fn pixel(&self, x: usize, y: usize) -> Option<&u8> {
+        if x < self.width() && y < self.height() {
+            let index = y * self.width() + x;
+            self.data.get(index)
+        } else {
+            None
+        }
+    }
 
-// 实现Index trait，允许通过索引访问行
-impl<T, C: Channel> Index<usize> for Mat<T, C>
-where 
-    T: Copy + Into<usize> + std::ops::Mul<Output = T> + From<u8> + PartialEq,
-{
-    type Output = MatRow<'_>;
-
-    fn index(&self, row: usize) -> &Self::Output {
-        // 这里需要返回一个临时值，但Rust不允许这样
-        // 所以我们使用一个更实用的解决方案
-        panic!("Index trait not fully implemented for Mat. Use .row() method instead.");
+    // 通过行和列访问像素值（可变引用）
+    pub fn pixel_mut(&mut self, x: usize, y: usize) -> Option<&mut u8> {
+        if x < self.width() && y < self.height() {
+            let index = y * self.width() + x;
+            self.data.get_mut(index)
+        } else {
+            None
+        }
     }
 }
 
-// 实现IndexMut trait，允许通过索引访问可变行
-impl<T, C: Channel> IndexMut<usize> for Mat<T, C>
+// 为了支持类似二维数组的访问，我们需要实现一个更实用的方法
+// 由于Rust的借用规则限制，我们不能直接实现Index和IndexMut
+// 但我们可以提供一个更便捷的访问方式
+impl<T, C: Channel> Mat<T, C> 
 where 
     T: Copy + Into<usize> + std::ops::Mul<Output = T> + From<u8> + PartialEq,
 {
-    fn index_mut(&mut self, row: usize) -> &mut Self::Output {
-        // 这里需要返回一个临时值，但Rust不允许这样
-        panic!("IndexMut trait not fully implemented for Mat. Use .row_mut() method instead.");
+    /// 获取指定坐标的像素值（通过行和列）
+    pub fn get_pixel_by_coords(&self, x: usize, y: usize) -> Option<u8> {
+        if x < self.width() && y < self.height() {
+            let index = y * self.width() + x;
+            Some(self.data[index])
+        } else {
+            None
+        }
+    }
+
+    /// 设置指定坐标的像素值（通过行和列）
+    pub fn set_pixel_by_coords(&mut self, x: usize, y: usize, value: u8) -> bool {
+        if x < self.width() && y < self.height() {
+            let index = y * self.width() + x;
+            self.data[index] = value;
+            true
+        } else {
+            false
+        }
     }
 }
