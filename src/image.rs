@@ -4,9 +4,9 @@ use std::ops::{Index, IndexMut};
 use crate::channel::Channel;
 use crate::pixel::Pixel;
 
-pub struct Image<T, P: Pixel, C: Channel<P>> {
-    weight: T,
-    height: T,
+pub struct Image<P: Pixel, C: Channel<P>> {
+    weight: usize,
+    height: usize,
     data: Vec<P>,
     _phantom: PhantomData<C>,
 }
@@ -54,11 +54,9 @@ impl<'a, P: Pixel> IndexMut<usize> for ImageRowMut<'a, P> {
     }
 }
 
-impl<T, P: Pixel, C: Channel<P>> Image<T, P, C>
-where
-    T: Copy + Into<usize> + std::ops::Mul<Output = T> + From<u8> + PartialEq,
+impl<P: Pixel, C: Channel<P>> Image<P, C>
 {
-    pub fn new(weight: T, height: T) -> Self {
+    pub fn new(weight: usize, height: usize) -> Self {
         let size = weight * height;
         let data = vec![P::default(); size.into()];
         Image {
@@ -86,59 +84,31 @@ where
     }
     
     // 获取行引用
-    pub fn row(&self, row: usize) -> Option<ImageRow<'_, P>> {
+    pub fn row(&self, row: usize) -> ImageRow<'_, P> {
         if row < self.height() {
             let start = row * self.width();
             let end = start + self.width();
-            Some(ImageRow {
+            ImageRow {
                 data: &self.data[start..end],
                 width: self.width(),
-            })
+            }
         } else {
-            None
+            panic!("range out of bound")
         }
     }
     
     // 获取可变行引用
-    pub fn row_mut(&mut self, row: usize) -> Option<ImageRowMut<'_, P>> {
+    pub fn row_mut(&mut self, row: usize) -> ImageRowMut<'_, P> {
         if row < self.height() {
             let start = row * self.width();
             let end = start + self.width();
-            Some(ImageRowMut {
+            let width=self.width();
+            ImageRowMut {
                 data: &mut self.data[start..end],
-                width: self.width(),
-            })
+                width: width,
+            }
         } else {
-            None
+            panic!("range out of bound")
         }
-    }
-}
-
-impl<T, P: Pixel, C: Channel<P>> Index<usize> for Image<T, P, C>
-where
-    T: Copy + Into<usize> + std::ops::Mul<Output = T> + From<u8> + PartialEq,
-{
-    type Output = ImageRow<'_, P>;
-
-    fn index(&self, index: usize) -> &Self::Output {
-        // This implementation has a problem - we can't return a reference to a temporary value
-        // The proper approach is to use the row() method instead
-        panic!("Use .row() method to get row references");
-    }
-}
-
-// Since we can't properly implement Index for Image, let's provide a better API
-impl<T, P: Pixel, C: Channel<P>> Image<T, P, C>
-where
-    T: Copy + Into<usize> + std::ops::Mul<Output = T> + From<u8> + PartialEq,
-{
-    /// Get a row reference by index (zero-copy)
-    pub fn get_row(&self, row: usize) -> Option<ImageRow<'_, P>> {
-        self.row(row)
-    }
-    
-    /// Get a mutable row reference by index (zero-copy)
-    pub fn get_row_mut(&mut self, row: usize) -> Option<ImageRowMut<'_, P>> {
-        self.row_mut(row)
     }
 }

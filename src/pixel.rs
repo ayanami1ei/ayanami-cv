@@ -1,0 +1,1 @@
+pub trait Pixel:Clone+Copy+Default{}
