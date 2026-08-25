@@ -1,4 +1,4 @@
-pub mod mat;
+pub mod image;
 pub mod channel;
 pub mod color_space;
 
