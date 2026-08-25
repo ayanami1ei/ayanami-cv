@@ -181,8 +181,8 @@ where
     }
     
     /// 转换为灰度图像（如果当前是彩色图像）
-    pub fn to_grayscale(&self) -> Mat<usize, GrayChannel> {
-        let mut gray_mat = Mat::<usize, GrayChannel>::new(self.width(), self.height());
+    pub fn to_grayscale(&self) -> Mat<usize, crate::color_space::GrayChannel> {
+        let mut gray_mat = Mat::<usize, crate::color_space::GrayChannel>::new(self.width(), self.height());
         
         for y in 0..self.height() {
             for x in 0..self.width() {
