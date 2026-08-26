@@ -29,7 +29,7 @@ pub fn color_space(attr: TokenStream, item: TokenStream) -> TokenStream {
         #[derive(Debug, Clone, Copy, Default, bytemuck::Pod, bytemuck::Zeroable)]
         pub struct #pixel_name{
             #(
-                #pixel_names: u8,
+                pub #pixel_names: u8,
             )*
         }
 

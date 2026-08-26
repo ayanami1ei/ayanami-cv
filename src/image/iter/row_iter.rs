@@ -1,4 +1,4 @@
-use crate::{Image, color_space::ColorSpace, image::image_row::ImageRow};
+use crate::{color_space::ColorSpace, image::image_row::ImageRow};
 
 pub struct ImageRowIter<'a, C: ColorSpace>{
     pixels:&'a [C::PixelType],
@@ -8,8 +8,8 @@ pub struct ImageRowIter<'a, C: ColorSpace>{
 }
 
 impl<'a, C:ColorSpace> ImageRowIter<'a, C>{
-    pub fn new(image:&'a Image<C>)->Self{
-        Self { pixels: image.pixel(), height:image.height(), width:image.width(), index: 0 }
+    pub fn new(pixels:&'a [C::PixelType],height:usize,width:usize)->Self{
+        Self { pixels, height, width, index: 0 }
     }
 }
 

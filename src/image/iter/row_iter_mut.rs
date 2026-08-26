@@ -1,4 +1,4 @@
-use crate::{Image, color_space::ColorSpace, image::image_row_mut::ImageRowMut};
+use crate::{color_space::ColorSpace, image::image_row_mut::ImageRowMut};
 
 pub struct ImageRowIterMut<'a, C: ColorSpace> {
     pixels: *mut C::PixelType,
@@ -9,11 +9,7 @@ pub struct ImageRowIterMut<'a, C: ColorSpace> {
 }
 
 impl<'a, C: ColorSpace> ImageRowIterMut<'a, C> {
-    pub fn new(image: &'a mut Image<C>) -> Self {
-        let height = image.height();
-        let width = image.width();
-        let pixels = image.pixel_mut().as_mut_ptr();
-
+    pub fn new(pixels: *mut C::PixelType, height:usize, width:usize) -> Self {
         Self {
             pixels,
             width,

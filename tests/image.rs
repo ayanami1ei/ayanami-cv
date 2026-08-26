@@ -3,41 +3,41 @@ mod image_test {
     use ayanami_cv::{Gray, Image, image::image_view::ImageView};
 
     #[test]
-    fn test_new_index() {
-        let m = Image::<Gray>::new(640, 480);
-        for i in 0..m.height() {
-            let row = m.row(i);
-            for j in 0..row.len() {
-                println!("m: {:?}", row[j]);
+    fn test_new_row_iter() {
+        let mut m = Image::<Gray>::new(640, 480);
+
+        for mut r in m.row_iter_mut() {
+            for j in 0..r.len() {
+                r[j].gray+=1;
+            }
+        }
+
+        for r in m.row_iter() {
+            for j in 0..r.len() {
+                assert_eq!(1, r[j].gray)
             }
         }
     }
 
+
     #[test]
-    fn test_new_row_iter() {
-        let m = Image::<Gray>::new(640, 480);
-        for r in m.row_iter() {
-            for j in 0..r.len() {
-                println!("m: {:?}", r[j]);
-            }
+    fn test_new_pixel_iter() {
+        let mut m = Image::<Gray>::new(640, 480);
+        for p in m.pixel_iter_mut() {
+                p.gray+=1;
+        }
+        for p in m.pixel_iter() {
+            assert_eq!(1, p.gray)
         }
     }
 
     #[test]
     fn test_new_view() {
         let m = Image::<Gray>::new(640, 480);
-        for i in 0..m.height() {
-            let row = m.row(i);
-            for j in 0..row.len() {
-                println!("m: {:?}", row[j]);
-            }
-        }
-
         let n=ImageView::<Gray>::new(m.width(), m.height(), m.data());
-        for i in 0..n.height() {
-            let row = n.row(i);
-            for j in 0..row.len() {
-                println!("n: {:?}", row[j]);
+        for i in 0..m.height(){
+            for j in 0..m.width(){
+                assert_eq!(m.at((i,j)).gray, n.at((i,j)).gray);
             }
         }
     }
