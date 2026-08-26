@@ -2,4 +2,4 @@ pub mod color_space;
 pub mod image;
 pub mod pixel;
 
-pub use {crate::color_space::Gray as Gray, crate::image::Image};
+pub use {crate::color_space::Gray as Gray, crate::image::image::Image as Image};

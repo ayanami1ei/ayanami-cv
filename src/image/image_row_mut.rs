@@ -16,6 +16,10 @@ impl<'a, P: Pixel> ImageRowMut<'a, P> {
     pub fn len(&self) -> usize {
         self.width
     }
+
+    pub fn data(&'a self)->&'a [u8]{
+        bytemuck::cast_slice(self.data)
+    }
 }
 
 impl<'a, P: Pixel> Index<usize> for ImageRowMut<'a, P> {
