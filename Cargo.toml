@@ -5,7 +5,5 @@ edition = "2024"
 
 [dependencies]
 bytemuck = { version = "1.25.2", features = ["derive"] }
-image = "0.25.10"
-tracing = "0.1.44"
 
 pixel-derive={path="./pixel-derive"}
