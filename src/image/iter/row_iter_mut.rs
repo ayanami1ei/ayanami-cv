@@ -9,7 +9,7 @@ pub struct ImageRowIterMut<'a, C: ColorSpace> {
 }
 
 impl<'a, C: ColorSpace> ImageRowIterMut<'a, C> {
-    pub fn new(pixels: *mut C::PixelType, height:usize, width:usize) -> Self {
+    pub fn new(pixels: *mut C::PixelType, height: usize, width: usize) -> Self {
         Self {
             pixels,
             width,
@@ -30,12 +30,7 @@ impl<'a, C: ColorSpace> Iterator for ImageRowIterMut<'a, C> {
 
         let start = self.index * self.width;
 
-        let row = unsafe {
-            std::slice::from_raw_parts_mut(
-                self.pixels.add(start),
-                self.width,
-            )
-        };
+        let row = unsafe { std::slice::from_raw_parts_mut(self.pixels.add(start), self.width) };
 
         self.index += 1;
 

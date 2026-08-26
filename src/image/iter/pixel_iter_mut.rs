@@ -1,14 +1,14 @@
-use crate::{color_space::ColorSpace};
+use crate::color_space::ColorSpace;
 
 pub struct ImagePixelIterMut<'a, C: ColorSpace> {
-    pixels: * mut C::PixelType,
+    pixels: *mut C::PixelType,
     len: usize,
     index: usize,
     _marker: std::marker::PhantomData<&'a mut C::PixelType>,
 }
 
 impl<'a, C: ColorSpace> ImagePixelIterMut<'a, C> {
-    pub fn new(pixels: * mut C::PixelType, len:usize) -> Self {
+    pub fn new(pixels: *mut C::PixelType, len: usize) -> Self {
         Self {
             pixels,
             len,
@@ -26,14 +26,10 @@ impl<'a, C: ColorSpace> Iterator for ImagePixelIterMut<'a, C> {
             return None;
         }
 
-        let ptr = unsafe {
-            self.pixels.add(self.index)
-        };
+        let ptr = unsafe { self.pixels.add(self.index) };
 
         self.index += 1;
 
-        Some(unsafe {
-            &mut *ptr
-        })
+        Some(unsafe { &mut *ptr })
     }
 }

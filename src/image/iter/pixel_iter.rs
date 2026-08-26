@@ -1,4 +1,4 @@
-use crate::{color_space::ColorSpace};
+use crate::color_space::ColorSpace;
 
 pub struct ImagePixelIter<'a, C: ColorSpace> {
     pixels: &'a [C::PixelType],
@@ -7,7 +7,7 @@ pub struct ImagePixelIter<'a, C: ColorSpace> {
 }
 
 impl<'a, C: ColorSpace> ImagePixelIter<'a, C> {
-    pub fn new(pixels: &'a [C::PixelType], len:usize) -> Self {
+    pub fn new(pixels: &'a [C::PixelType], len: usize) -> Self {
         Self {
             pixels,
             len,

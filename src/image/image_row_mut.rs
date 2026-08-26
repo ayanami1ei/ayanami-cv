@@ -9,7 +9,7 @@ pub struct ImageRowMut<'a, P: Pixel> {
 }
 
 impl<'a, P: Pixel> ImageRowMut<'a, P> {
-    pub fn new(data: &'a mut [P], width: usize)->Self{
+    pub fn new(data: &'a mut [P], width: usize) -> Self {
         Self { data, width }
     }
 
@@ -17,7 +17,7 @@ impl<'a, P: Pixel> ImageRowMut<'a, P> {
         self.width
     }
 
-    pub fn data(&'a self)->&'a [u8]{
+    pub fn data(&'a self) -> &'a [u8] {
         bytemuck::cast_slice(self.data)
     }
 }

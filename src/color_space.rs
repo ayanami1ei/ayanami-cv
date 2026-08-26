@@ -1,4 +1,4 @@
-use crate::{pixel::Pixel};
+use crate::pixel::Pixel;
 use pixel_derive::color_space;
 
 pub trait ColorSpace {
@@ -7,10 +7,9 @@ pub trait ColorSpace {
 }
 
 /// RGB通道类型
-#[color_space(r,g,b)]
+#[color_space(r, g, b)]
 pub struct Rgb;
 
 /// 灰度通道类型
 #[color_space(gray)]
 pub struct Gray;
-
