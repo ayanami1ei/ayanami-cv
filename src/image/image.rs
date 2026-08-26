@@ -19,8 +19,12 @@ impl<C: ColorSpace> Image<C> {
         }
     }
 
-    pub fn new_from_vec(weight: usize, height: usize, vec:&'_ Vec<u8>)->Self{
-        Self { weight, height, data: bytemuck::cast_slice(vec).to_vec() }
+    pub fn new_from_vec(weight: usize, height: usize, vec: &'_ Vec<u8>) -> Self {
+        Self {
+            weight,
+            height,
+            data: bytemuck::cast_slice(vec).to_vec(),
+        }
     }
 
     pub fn width(&self) -> usize {
@@ -44,10 +48,7 @@ impl<C: ColorSpace> Image<C> {
         if row < self.height() {
             let start = row * self.width();
             let end = start + self.width();
-            ImageRow::new(
-                &self.data[start..end],
-                self.width(),
-            )
+            ImageRow::new(&self.data[start..end], self.width())
         } else {
             panic!("range out of bound")
         }
@@ -59,10 +60,7 @@ impl<C: ColorSpace> Image<C> {
             let start = row * self.width();
             let end = start + self.width();
             let width = self.width();
-            ImageRowMut::new(
-                &mut self.data[start..end],
-                width,
-            )
+            ImageRowMut::new(&mut self.data[start..end], width)
         } else {
             panic!("range out of bound")
         }
