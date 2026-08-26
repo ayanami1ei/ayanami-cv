@@ -1,24 +1,23 @@
 use crate::Image;
 use crate::color_space::ColorSpace;
 use crate::image::image_row::ImageRow;
-use crate::image::image_row_mut::ImageRowMut;
 
 pub struct ImageView<'a, C: ColorSpace> {
     weight: usize,
     height: usize,
-    data: &'a mut [C::PixelType],
+    data: &'a [C::PixelType],
 }
 
 impl<'a, C: ColorSpace> ImageView<'a, C> {
-    pub fn new(weight: usize, height: usize, vec:&'a mut [u8])->Self{
-        Self { weight, height, data: bytemuck::cast_slice_mut(vec) }
+    pub fn new(weight: usize, height: usize, vec:&'a [u8])->Self{
+        Self { weight, height, data: bytemuck::cast_slice(vec) }
     }
 
-    pub fn new_from_image(image:&'a mut Image<C>)->Self{
+    pub fn new_from_image(image:&'a Image<C>)->Self{
         Self{
             weight: image.width(),
             height: image.height(),
-            data: bytemuck::cast_slice_mut(image.data_mut()),
+            data: bytemuck::cast_slice(image.data()),
         }
     }
 
@@ -34,10 +33,6 @@ impl<'a, C: ColorSpace> ImageView<'a, C> {
         bytemuck::cast_slice(&self.data)
     }
 
-    pub fn data_mut(&mut self) -> &mut [u8] {
-        bytemuck::cast_slice_mut(&mut self.data)
-    }
-
     // 获取行引用
     pub fn row(&self, row: usize) -> ImageRow<'_, C::PixelType> {
         if row < self.height() {
@@ -46,21 +41,6 @@ impl<'a, C: ColorSpace> ImageView<'a, C> {
             ImageRow::new(
                 &self.data[start..end],
                 self.width(),
-            )
-        } else {
-            panic!("range out of bound")
-        }
-    }
-
-    // 获取可变行引用
-    pub fn row_mut(&mut self, row: usize) -> ImageRowMut<'_, C::PixelType> {
-        if row < self.height() {
-            let start = row * self.width();
-            let end = start + self.width();
-            let width = self.width();
-            ImageRowMut::new(
-                &mut self.data[start..end],
-                width,
             )
         } else {
             panic!("range out of bound")
