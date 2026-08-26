@@ -17,11 +17,14 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for ImageView<'a, C> {
     fn height(&self) -> usize {
         self.height
     }
+    fn pixel<'b>(&'b self)->&'b [C::PixelType] {
+        self.data
+    }
     fn data(&self) -> &[u8] {
         bytemuck::cast_slice(&self.data)
     }
     fn row_iter(&self) -> ImageRowIter<'_, C> {
-        ImageRowIter::new(&self.data, self.height, self.width)
+        ImageRowIter::new(self)
     }
     fn pixel_iter(&self) -> ImagePixelIter<'_, C> {
         ImagePixelIter::new(&self.data, self.height * self.width)

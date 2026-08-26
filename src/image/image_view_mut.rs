@@ -19,11 +19,14 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for ImageViewMut<'a, C> {
     fn height(&self) -> usize {
         self.height
     }
+    fn pixel<'b>(&'b self)->&'b [<C as ColorSpace>::PixelType] {
+        self.data
+    }
     fn data(&self) -> &[u8] {
         bytemuck::cast_slice(&self.data)
     }
     fn row_iter(&self) -> ImageRowIter<'_, C> {
-        ImageRowIter::new(&self.data, self.height, self.width)
+        ImageRowIter::new(self)
     }
     fn pixel_iter(&self) -> ImagePixelIter<'_, C> {
         ImagePixelIter::new(&self.data, self.height * self.width)
@@ -34,11 +37,14 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for ImageViewMut<'a, C> {
 }
 
 impl<'a, C: ColorSpace> ImageViewMutLike<C> for ImageViewMut<'a, C> {
+    fn pixel_mut<'b>(&'b mut self)->* mut <C as ColorSpace>::PixelType {
+        self.data.as_mut_ptr()
+    }
     fn data_mut(&mut self) -> &mut [u8] {
         bytemuck::cast_slice_mut(&mut self.data)
     }
     fn row_iter_mut(&mut self) -> ImageRowIterMut<'_, C> {
-        ImageRowIterMut::new(self.data.as_mut_ptr(), self.height, self.width)
+        ImageRowIterMut::new(self)
     }
     fn pixel_iter_mut(&mut self) -> ImagePixelIterMut<'_, C> {
         ImagePixelIterMut::new(self.data.as_mut_ptr(), self.height * self.width)

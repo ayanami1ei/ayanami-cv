@@ -1,4 +1,7 @@
-use crate::{color_space::ColorSpace, image::image_row_mut::ImageRowMut};
+use crate::{
+    color_space::ColorSpace,
+    image::{ImageViewMutLike, image_row_mut::ImageRowMut},
+};
 
 pub struct ImageRowIterMut<'a, C: ColorSpace> {
     pixels: *mut C::PixelType,
@@ -9,11 +12,11 @@ pub struct ImageRowIterMut<'a, C: ColorSpace> {
 }
 
 impl<'a, C: ColorSpace> ImageRowIterMut<'a, C> {
-    pub fn new(pixels: *mut C::PixelType, height: usize, width: usize) -> Self {
+    pub fn new<I: ImageViewMutLike<C>>(image: &'a mut I) -> Self {
         Self {
-            pixels,
-            width,
-            height,
+            pixels: image.pixel_mut(),
+            width: image.width(),
+            height: image.height(),
             index: 0,
             _marker: std::marker::PhantomData,
         }
