@@ -1,10 +1,9 @@
 use crate::Image;
 use crate::color_space::ColorSpace;
-use crate::image::{ImageViewLike, ImageViewMutLike};
-use crate::image::iter::pixel_iter::ImagePixelIter;
 use crate::image::iter::pixel_iter_mut::ImagePixelIterMut;
 use crate::image::iter::row_iter::ImageRowIter;
 use crate::image::iter::row_iter_mut::ImageRowIterMut;
+use crate::image::{ImageViewLike, ImageViewMutLike};
 
 pub struct ImageViewMut<'a, C: ColorSpace> {
     width: usize,
@@ -19,17 +18,11 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for ImageViewMut<'a, C> {
     fn height(&self) -> usize {
         self.height
     }
-    fn pixel<'b>(&'b self)->&'b [<C as ColorSpace>::PixelType] {
+    fn pixel<'b>(&'b self) -> &'b [<C as ColorSpace>::PixelType] {
         self.data
-    }
-    fn data(&self) -> &[u8] {
-        bytemuck::cast_slice(&self.data)
     }
     fn row_iter(&self) -> ImageRowIter<'_, C> {
         ImageRowIter::new(self)
-    }
-    fn pixel_iter(&self) -> ImagePixelIter<'_, C> {
-        ImagePixelIter::new(&self.data, self.height * self.width)
     }
     fn at(&self, index: (usize, usize)) -> &C::PixelType {
         &self.data[index.0 * self.height + index.1]
@@ -37,11 +30,8 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for ImageViewMut<'a, C> {
 }
 
 impl<'a, C: ColorSpace> ImageViewMutLike<C> for ImageViewMut<'a, C> {
-    fn pixel_mut<'b>(&'b mut self)->* mut <C as ColorSpace>::PixelType {
+    fn pixel_mut<'b>(&'b mut self) -> *mut <C as ColorSpace>::PixelType {
         self.data.as_mut_ptr()
-    }
-    fn data_mut(&mut self) -> &mut [u8] {
-        bytemuck::cast_slice_mut(&mut self.data)
     }
     fn row_iter_mut(&mut self) -> ImageRowIterMut<'_, C> {
         ImageRowIterMut::new(self)
@@ -64,10 +54,13 @@ impl<'a, C: ColorSpace> ImageViewMut<'a, C> {
     }
 
     pub fn new_from_image(image: &'a mut Image<C>) -> Self {
+        let data = unsafe {
+            std::slice::from_raw_parts_mut(image.pixel_mut(), image.width() * image.height())
+        };
         Self {
             width: image.width(),
             height: image.height(),
-            data: bytemuck::cast_slice_mut(image.data_mut()),
+            data,
         }
     }
 }

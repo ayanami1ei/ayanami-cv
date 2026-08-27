@@ -1,6 +1,9 @@
 #[cfg(test)]
 mod image_test {
-    use ayanami_cv::{Gray, Image, image::{ImageViewLike, ImageViewMutLike, image_view::ImageView}};
+    use ayanami_cv::{
+        Gray, Image,
+        image::{ImageViewLike, ImageViewMutLike, image_view::ImageView},
+    };
 
     #[test]
     fn test_new_row_iter() {
@@ -33,7 +36,7 @@ mod image_test {
     #[test]
     fn test_new_view() {
         let m = Image::<Gray>::new(640, 480);
-        let n = ImageView::<Gray>::new(m.width(), m.height(), m.data());
+        let n = ImageView::<Gray>::new_from_image(&m);
         for i in 0..m.height() {
             for j in 0..m.width() {
                 assert_eq!(m.at((i, j)).gray, n.at((i, j)).gray);

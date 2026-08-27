@@ -1,4 +1,7 @@
-use crate::{color_space::ColorSpace, image::{ImageViewLike, image_row::ImageRow}};
+use crate::{
+    color_space::ColorSpace,
+    image::{ImageViewLike, image_row::ImageRow},
+};
 
 pub struct ImageRowIter<'a, C: ColorSpace> {
     pixels: &'a [C::PixelType],
@@ -8,18 +11,18 @@ pub struct ImageRowIter<'a, C: ColorSpace> {
 }
 
 impl<'a, C: ColorSpace> ImageRowIter<'a, C> {
-    pub fn new<I:ImageViewLike<C>>(image:&'a I) -> Self {
+    pub fn new<I: ImageViewLike<C>>(image: &'a I) -> Self {
         Self {
-            pixels:image.pixel(),
-            height:image.height(),
-            width:image.width(),
+            pixels: image.pixel(),
+            height: image.height(),
+            width: image.width(),
             index: 0,
         }
     }
 }
 
 impl<'a, C: ColorSpace> Iterator for ImageRowIter<'a, C> {
-    type Item = ImageRow<'a, C::PixelType>;
+    type Item = ImageRow<'a, C>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.index >= self.height {
