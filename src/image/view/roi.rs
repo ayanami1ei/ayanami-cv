@@ -23,7 +23,7 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for Roi<'a, C> {
         ImageRowIter::new(self)
     }
     fn at(&self, index: (usize, usize)) -> &C::PixelType {
-        &self.data[index.0 * self.height()][index.1]
+        &self.data[index.0][index.1]
     }
 }
 

@@ -31,7 +31,7 @@ impl<'a, C: ColorSpace> ImageView<'a, C> {
     pub fn new(width: usize, height: usize, vec: &'a [u8]) -> Self {
         let mut data = Vec::with_capacity(height);
         for i in 0..height {
-            data.push(bytemuck::cast_slice(&vec[i * height..i * height + width]))
+            data.push(bytemuck::cast_slice(&vec[i * width..i * width + width]))
         }
         Self {
             width,

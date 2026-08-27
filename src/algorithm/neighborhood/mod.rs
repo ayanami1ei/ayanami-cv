@@ -17,6 +17,7 @@ pub trait WindowLike<C: ColorSpace> {
 pub struct InteriorWindow<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> {
     data: &'a I,
     index: usize,
+    pixels: Vec<&'a [C::PixelType]>,
     _mark: PhantomData<C>,
 }
 
@@ -25,6 +26,7 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> InteriorWindow<'
         Self {
             data: image,
             index: 0,
+            pixels: image.pixel(),
             _mark: PhantomData,
         }
     }
@@ -42,13 +44,14 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> WindowLike<C>
         let w = self.data.width();
         let i = self.index / w;
         let j = self.index % w;
-        self.data.pixel()[(i as isize + x as isize) as usize][(j as isize + y as isize) as usize]
+        self.pixels[(i as isize + x as isize) as usize][(j as isize + y as isize) as usize]
     }
 }
 
 pub struct BorderWindow<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> {
     data: &'a I,
     index: usize,
+    pixels: Vec<&'a [C::PixelType]>,
     _mark: PhantomData<C>,
 }
 
@@ -57,6 +60,7 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> BorderWindow<'a,
         Self {
             data: image,
             index: 0,
+            pixels: image.pixel(),
             _mark: PhantomData,
         }
     }
@@ -80,7 +84,7 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> WindowLike<C>
         if ni < 0 || ni as usize >= h || nj < 0 || nj as usize >= w {
             return C::PixelType::default();
         }
-        self.data.pixel()[ni as usize][nj as usize]
+        self.pixels[ni as usize][nj as usize]
     }
 }
 
