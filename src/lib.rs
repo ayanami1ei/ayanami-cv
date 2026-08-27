@@ -1,5 +1,6 @@
 pub mod image;
 pub mod point;
+pub mod algorithm;
 
 pub use {
     crate::image::{
