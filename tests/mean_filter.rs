@@ -85,7 +85,7 @@ mod mean_filter_test {
         fill_random(&mut data, 0x12345678);
         let src = Image::<Gray>::new_from_vec(WIDTH, HEIGHT, data);
         let mut dst = Image::<Gray>::new(WIDTH, HEIGHT);
-        let mut f = MeanFilter;
+        let mut f = MeanFilter::new();
 
         let t3 = bench_once::<3>(&src, &mut dst, &mut f);
         let t5 = bench_once::<5>(&src, &mut dst, &mut f);
@@ -113,7 +113,7 @@ mod mean_filter_test {
             data
         });
         let mut dst = Image::<Gray>::new(WIDTH, HEIGHT);
-        let mut f = MeanFilter;
+        let mut f = MeanFilter::new();
 
         let base = bench_once::<3>(&src, &mut dst, &mut f);
 
@@ -135,7 +135,7 @@ mod mean_filter_test {
         let src = Image::<Gray>::new_from_vec(5, 5, vec![10u8; 25]);
         let mut dst = Image::<Gray>::new(5, 5);
 
-        let mut f = MeanFilter;
+        let mut f = MeanFilter::new();
         f.filter::<_, _, 3>(&src, &mut dst).unwrap();
 
         for i in 1..4 {
@@ -151,7 +151,7 @@ mod mean_filter_test {
         src.at_mut((2, 2)).gray = 5;
         let mut dst = Image::<Gray>::new(5, 5);
 
-        let mut f = MeanFilter;
+        let mut f = MeanFilter::new();
         f.filter::<_, _, 3>(&src, &mut dst).unwrap();
 
         assert!(collect(&dst).iter().all(|&v| v == 0));
@@ -163,7 +163,7 @@ mod mean_filter_test {
         let src = Image::<Gray>::new_from_vec(3, 3, vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
         let mut dst = Image::<Gray>::new(3, 3);
 
-        let mut f = MeanFilter;
+        let mut f = MeanFilter::new();
         f.filter::<_, _, 3>(&src, &mut dst).unwrap();
 
         // 3x3 窗口，超出边界的像素按 0 补零，分母固定为 3*3=9
@@ -172,11 +172,37 @@ mod mean_filter_test {
     }
 
     #[test]
+    fn test_reuse_across_images() {
+        // 图 A 5x5 滤波后，句柄状态停留在 last_index=3*5+4=19；
+        // 图 B 取 19 列宽，内区第一个像素 index=1*19+1=20==last_index+1，
+        // 若不做 reset 会误判为连续滑动，用 A 的 sum 增量更新 → 结果错。
+        let a_src = Image::<Gray>::new_from_vec(5, 5, vec![0u8; 25]);
+        let b_src = Image::<Gray>::new_from_vec(19, 5, {
+            let mut data = vec![0u8; 19 * 5];
+            fill_random(&mut data, 0xabcdef12);
+            data
+        });
+
+        let mut f = MeanFilter::new();
+        let mut da = Image::<Gray>::new(5, 5);
+        f.filter::<_, _, 3>(&a_src, &mut da).unwrap();
+        let mut db = Image::<Gray>::new(19, 5);
+        f.filter::<_, _, 3>(&b_src, &mut db).unwrap();
+
+        // 独立句柄单独滤波 B，结果必须一致
+        let mut ffresh = MeanFilter::new();
+        let mut db_fresh = Image::<Gray>::new(19, 5);
+        ffresh.filter::<_, _, 3>(&b_src, &mut db_fresh).unwrap();
+
+        assert_eq!(collect(&db), collect(&db_fresh));
+    }
+
+    #[test]
     fn test_even_window_returns_error() {
         let src = Image::<Gray>::new(5, 5);
         let mut dst = Image::<Gray>::new(5, 5);
 
-        let mut f = MeanFilter;
+        let mut f = MeanFilter::new();
         let res = f.filter::<_, _, 2>(&src, &mut dst);
 
         assert!(matches!(res, Err(Error::WindowSizeMustBeOdd)));

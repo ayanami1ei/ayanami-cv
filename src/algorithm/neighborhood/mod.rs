@@ -9,8 +9,9 @@ pub mod error;
 pub mod filters;
 
 pub trait WindowLike<C: ColorSpace> {
-    const SIZE:usize;
+    const SIZE: usize;
     fn set_index(&mut self, index: usize);
+    fn index(&self) -> usize;
     fn at(&self, x: i32, y: i32) -> C::PixelType;
 }
 
@@ -35,9 +36,12 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> InteriorWindow<'
 impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> WindowLike<C>
     for InteriorWindow<'a, C, I, SIZE>
 {
-    const SIZE:usize = SIZE;
+    const SIZE: usize = SIZE;
     fn set_index(&mut self, index: usize) {
         self.index = index;
+    }
+    fn index(&self) -> usize {
+        self.index
     }
 
     fn at(&self, x: i32, y: i32) -> C::PixelType {
@@ -69,9 +73,12 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> BorderWindow<'a,
 impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> WindowLike<C>
     for BorderWindow<'a, C, I, SIZE>
 {
-    const SIZE:usize = SIZE;
+    const SIZE: usize = SIZE;
     fn set_index(&mut self, index: usize) {
         self.index = index;
+    }
+    fn index(&self) -> usize {
+        self.index
     }
 
     fn at(&self, x: i32, y: i32) -> C::PixelType {
@@ -89,6 +96,7 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> WindowLike<C>
 }
 
 pub trait NeighborhoodAlgorithm{
+    fn reset(&mut self);
     fn process<W: WindowLike<Gray>>(&mut self, window: &W)->GrayPixel;
 }
 
@@ -106,6 +114,8 @@ pub fn neighborhood<
     if SIZE % 2 == 0 {
         return Err(Error::WindowSizeMustBeOdd);
     }
+
+    algor.reset();
 
     let r: usize = SIZE / 2;
 
