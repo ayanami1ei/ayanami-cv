@@ -1,13 +1,14 @@
 use filter_derive::filter;
 
 use crate::{
-    Gray, GrayPixel, ImageViewLike, ImageViewMutLike,
-    algorithm::neighborhood::{NeighborhoodAlgorithm, WindowLike, error::Error, neighborhood},
+    ImageViewLike, ImageViewMutLike,
+    algorithm::neighborhood::{NeighborhoodAlgorithm, WindowLike, Error, neighborhood},
+    image::color_space::ColorSpace,
 };
 
 #[filter]
 pub struct MeanFilter {
-    sum: usize,
+    sums: Vec<usize>,
     last_index: usize,
     initialized: bool,
 }
@@ -15,7 +16,7 @@ pub struct MeanFilter {
 impl MeanFilter {
     pub fn new() -> Self {
         Self {
-            sum: 0,
+            sums: Vec::new(),
             last_index: 0,
             initialized: false,
         }
@@ -24,35 +25,46 @@ impl MeanFilter {
 
 impl NeighborhoodAlgorithm for MeanFilter {
     fn reset(&mut self) {
-        self.sum = 0;
+        self.sums.clear();
         self.last_index = 0;
         self.initialized = false;
     }
 
-    fn process<W: WindowLike<Gray>>(&mut self, window: &W) -> GrayPixel {
-        let r = (W::SIZE / 2) as i32;
+    fn process<C: ColorSpace, W: WindowLike<C>>(&mut self, window: &W) -> C::PixelType {
+        let half = (W::SIZE / 2) as i32;
 
+        // 用 bytemuck 把任意 PixelType 按字节切片，逐通道滚动求和，与色彩空间无关
         if !self.initialized || window.index() != self.last_index + 1 {
-            // 初始值 & 换行：窗口垂直或跳跃移动，无法增量更新，整体重新求和
-            self.sum = 0;
-            for x in -r..=r {
-                for y in -r..=r {
-                    self.sum += window.at(x, y).gray as usize;
+            self.sums.resize(C::CHANNEL, 0);
+            self.sums.fill(0);
+            for x in -half..=half {
+                for y in -half..=half {
+                    let p = window.at(x, y);
+                    let px = bytemuck::bytes_of(&p);
+                    for k in 0..C::CHANNEL {
+                        self.sums[k] += px[k] as usize;
+                    }
                 }
             }
         } else {
-            // 向右平移一步：减去滑出窗口的左列，加上滑入的右列
-            for x in -r..=r {
-                self.sum -= window.at(x, -(r + 1)).gray as usize;
-                self.sum += window.at(x, r).gray as usize;
+            for x in -half..=half {
+                let l = window.at(x, -(half + 1));
+                let r = window.at(x, half);
+                let left = bytemuck::bytes_of(&l);
+                let right = bytemuck::bytes_of(&r);
+                for k in 0..C::CHANNEL {
+                    self.sums[k] -= left[k] as usize;
+                    self.sums[k] += right[k] as usize;
+                }
             }
         }
 
         self.last_index = window.index();
         self.initialized = true;
 
-        GrayPixel {
-            gray: (self.sum / (W::SIZE * W::SIZE)) as u8,
-        }
+        let mean = (0..C::CHANNEL)
+            .map(|k| (self.sums[k] / (W::SIZE * W::SIZE)) as u8)
+            .collect::<Vec<_>>();
+        bytemuck::cast_slice::<u8, C::PixelType>(&mean)[0]
     }
 }

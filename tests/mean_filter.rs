@@ -3,7 +3,7 @@ mod mean_filter_test {
     use std::{fs, time::{Duration, Instant}};
 
     use ayanami_cv::{
-        Gray, Image, ImageViewLike, ImageViewMutLike,
+        Gray, Rgb, Image, ImageViewLike, ImageViewMutLike,
         algorithm::neighborhood::{error::Error, filters::MeanFilter},
     };
 
@@ -59,7 +59,7 @@ mod mean_filter_test {
         println!("==============================");
     }
 
-    fn fill_random(v: &mut Vec<u8>, mut x: u32) {
+    fn fill_random(v: &mut [u8], mut x: u32) {
         for b in v {
             x ^= x << 13;
             x ^= x >> 17;
@@ -70,7 +70,7 @@ mod mean_filter_test {
 
     fn bench_once<const SIZE: usize>(src: &Image<Gray>, dst: &mut Image<Gray>, f: &mut MeanFilter) -> Duration {
         let start = Instant::now();
-        f.filter::<_, _, SIZE>(src, dst).unwrap();
+        f.filter::<_, _, _, SIZE>(src, dst).unwrap();
         start.elapsed()
     }
 
@@ -136,7 +136,7 @@ mod mean_filter_test {
         let mut dst = Image::<Gray>::new(5, 5);
 
         let mut f = MeanFilter::new();
-        f.filter::<_, _, 3>(&src, &mut dst).unwrap();
+        f.filter::<_, _, _, 3>(&src, &mut dst).unwrap();
 
         for i in 1..4 {
             for j in 1..4 {
@@ -152,7 +152,7 @@ mod mean_filter_test {
         let mut dst = Image::<Gray>::new(5, 5);
 
         let mut f = MeanFilter::new();
-        f.filter::<_, _, 3>(&src, &mut dst).unwrap();
+        f.filter::<_, _, _, 3>(&src, &mut dst).unwrap();
 
         assert!(collect(&dst).iter().all(|&v| v == 0));
         assert_eq!(0, dst.at((2, 2)).gray);
@@ -164,7 +164,7 @@ mod mean_filter_test {
         let mut dst = Image::<Gray>::new(3, 3);
 
         let mut f = MeanFilter::new();
-        f.filter::<_, _, 3>(&src, &mut dst).unwrap();
+        f.filter::<_, _, _, 3>(&src, &mut dst).unwrap();
 
         // 3x3 窗口，超出边界的像素按 0 补零，分母固定为 3*3=9
         let expect = vec![1, 2, 1, 3, 5, 3, 2, 4, 3];
@@ -185,16 +185,76 @@ mod mean_filter_test {
 
         let mut f = MeanFilter::new();
         let mut da = Image::<Gray>::new(5, 5);
-        f.filter::<_, _, 3>(&a_src, &mut da).unwrap();
+        f.filter::<_, _, _, 3>(&a_src, &mut da).unwrap();
         let mut db = Image::<Gray>::new(19, 5);
-        f.filter::<_, _, 3>(&b_src, &mut db).unwrap();
+        f.filter::<_, _, _, 3>(&b_src, &mut db).unwrap();
 
         // 独立句柄单独滤波 B，结果必须一致
         let mut ffresh = MeanFilter::new();
         let mut db_fresh = Image::<Gray>::new(19, 5);
-        ffresh.filter::<_, _, 3>(&b_src, &mut db_fresh).unwrap();
+        ffresh.filter::<_, _, _, 3>(&b_src, &mut db_fresh).unwrap();
 
         assert_eq!(collect(&db), collect(&db_fresh));
+    }
+
+    #[test]
+    fn test_rgb_uniform_interior() {
+        // RGB 三通道各自独立求均值（泛化改造目标：同一帧代码同时支持 Gray/RGB）
+        let mut src = Image::<Rgb>::new(5, 5);
+        for i in 0..5 {
+            for j in 0..5 {
+                let p = src.at_mut((i, j));
+                p.r = 10;
+                p.g = 20;
+                p.b = 30;
+            }
+        }
+        let mut dst = Image::<Rgb>::new(5, 5);
+
+        let mut f = MeanFilter::new();
+        f.filter::<_, _, _, 3>(&src, &mut dst).unwrap();
+
+        for i in 1..4 {
+            for j in 1..4 {
+                assert_eq!(10, dst.at((i, j)).r);
+                assert_eq!(20, dst.at((i, j)).g);
+                assert_eq!(30, dst.at((i, j)).b);
+            }
+        }
+    }
+
+    #[test]
+    fn test_rgb_slides_incrementally() {
+        // 与灰度图同款构造：A(5x5) 滤波后句柄停在 last_index=19，
+        // B(19x5) 内区首像素 index=20==last_index+1，强制 RGB 走滚动分支
+        let a_src = Image::<Rgb>::new(5, 5);
+        let b_src = Image::<Rgb>::new_from_vec(19, 5, {
+            let mut data = vec![0u8; 19 * 5 * 3];
+            // 按 R,G,B 三通道分别填充不同随机种子，验证每通道独立滚动
+            for k in 0..3 {
+                fill_random(&mut data[k..], 0xfeed_beef ^ (k as u32));
+            }
+            data
+        });
+
+        let mut f = MeanFilter::new();
+        let mut da = Image::<Rgb>::new(5, 5);
+        f.filter::<_, _, _, 3>(&a_src, &mut da).unwrap();
+
+        let mut db = Image::<Rgb>::new(19, 5);
+        f.filter::<_, _, _, 3>(&b_src, &mut db).unwrap();
+
+        let mut fb = MeanFilter::new();
+        let mut db_fresh = Image::<Rgb>::new(19, 5);
+        fb.filter::<_, _, _, 3>(&b_src, &mut db_fresh).unwrap();
+
+        for i in 0..5 {
+            for j in 0..19 {
+                assert_eq!(db.at((i, j)).r, db_fresh.at((i, j)).r);
+                assert_eq!(db.at((i, j)).g, db_fresh.at((i, j)).g);
+                assert_eq!(db.at((i, j)).b, db_fresh.at((i, j)).b);
+            }
+        }
     }
 
     #[test]
@@ -203,7 +263,7 @@ mod mean_filter_test {
         let mut dst = Image::<Gray>::new(5, 5);
 
         let mut f = MeanFilter::new();
-        let res = f.filter::<_, _, 2>(&src, &mut dst);
+        let res = f.filter::<_, _, _, 2>(&src, &mut dst);
 
         assert!(matches!(res, Err(Error::WindowSizeMustBeOdd)));
     }

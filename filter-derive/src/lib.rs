@@ -11,12 +11,12 @@ pub fn filter(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let expanded = quote! {
         #input
         impl #name {
-            pub fn filter<I: ImageViewLike<Gray>, IMut: ImageViewMutLike<Gray>, const SIZE: usize>(
+            pub fn filter<C:ColorSpace, I: ImageViewLike<C>, IMut: ImageViewMutLike<C>, const SIZE: usize>(
                 &mut self,
                 src: &I,
                 dst: &mut IMut,
             ) -> Result<(), Error> {
-                neighborhood::<I, IMut, SIZE, #name>(src, dst, self)
+                neighborhood::<C, I, IMut, SIZE, #name>(src, dst, self)
             }
         }
     };

@@ -80,7 +80,7 @@ mod mean_filter_bench {
 
         let mut f = MeanFilter::new();
         let start = Instant::now();
-        f.filter::<_, _, SIZE>(&src, &mut dst).unwrap();
+        f.filter::<_, _, _, SIZE>(&src, &mut dst).unwrap();
         let elapsed: Duration = start.elapsed();
 
         let secs = elapsed.as_secs_f64();

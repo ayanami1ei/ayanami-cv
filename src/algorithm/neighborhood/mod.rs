@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 
 use crate::{
-    Gray, GrayPixel, ImageViewLike, ImageViewMutLike, algorithm::neighborhood::error::Error,
+    ImageViewLike, ImageViewMutLike, algorithm::neighborhood::error::Error,
     image::color_space::ColorSpace,
 };
 
@@ -97,13 +97,14 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> WindowLike<C>
 
 pub trait NeighborhoodAlgorithm{
     fn reset(&mut self);
-    fn process<W: WindowLike<Gray>>(&mut self, window: &W)->GrayPixel;
+    fn process<C:ColorSpace, W: WindowLike<C>>(&mut self, window: &W)->C::PixelType;
 }
 
 pub fn neighborhood<
     'a,
-    I: ImageViewLike<Gray> + 'a,
-    IMut: ImageViewMutLike<Gray>,
+    C:ColorSpace,
+    I: ImageViewLike<C> + 'a,
+    IMut: ImageViewMutLike<C>,
     const SIZE: usize,
     A: NeighborhoodAlgorithm,
 >(
@@ -123,7 +124,7 @@ pub fn neighborhood<
     let height = src.height();
 
     // 内部
-    let mut inner_win = InteriorWindow::<Gray, I, SIZE>::new(src);
+    let mut inner_win = InteriorWindow::<C, I, SIZE>::new(src);
 
     for i in r..height - r {
         for j in r..width - r {
@@ -135,7 +136,7 @@ pub fn neighborhood<
     }
 
     // 边界
-    let mut border_win = BorderWindow::<Gray, I, SIZE>::new(src);
+    let mut border_win = BorderWindow::<C, I, SIZE>::new(src);
 
     // top
     for i in 0..r {
