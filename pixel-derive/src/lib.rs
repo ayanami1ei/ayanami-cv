@@ -20,7 +20,7 @@ pub fn color_space(attr: TokenStream, item: TokenStream) -> TokenStream {
     // 生成实现代码
     let expanded = quote! {
         pub struct #name;
-        impl crate::color_space::ColorSpace for #name {
+        impl ColorSpace for #name {
             const CHANNEL: usize = #channel;
             type PixelType = #pixel_name;
         }
@@ -33,7 +33,7 @@ pub fn color_space(attr: TokenStream, item: TokenStream) -> TokenStream {
             )*
         }
 
-        impl crate::color_space::Pixel for #pixel_name{}
+        impl Pixel for #pixel_name{}
     };
 
     TokenStream::from(expanded)

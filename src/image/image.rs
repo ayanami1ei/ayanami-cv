@@ -1,4 +1,4 @@
-use crate::color_space::ColorSpace;
+use crate::image::color_space::ColorSpace;
 use crate::image::iter::pixel_iter_mut::ImagePixelIterMut;
 use crate::image::iter::row_iter::ImageRowIter;
 use crate::image::iter::row_iter_mut::ImageRowIterMut;

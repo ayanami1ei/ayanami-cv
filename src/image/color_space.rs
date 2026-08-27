@@ -1,5 +1,6 @@
-use crate::pixel::Pixel;
 use pixel_derive::color_space;
+
+use crate::image::pixel::Pixel;
 
 pub trait ColorSpace {
     const CHANNEL: usize;

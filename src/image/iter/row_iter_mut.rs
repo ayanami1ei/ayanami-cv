@@ -1,7 +1,4 @@
-use crate::{
-    color_space::ColorSpace,
-    image::{ImageViewMutLike, view::image_row_mut::ImageRowMut},
-};
+use crate::image::{ImageViewMutLike, color_space::ColorSpace, view::image_row_mut::ImageRowMut};
 
 pub struct ImageRowIterMut<'a, C: ColorSpace> {
     pixels: *mut C::PixelType,

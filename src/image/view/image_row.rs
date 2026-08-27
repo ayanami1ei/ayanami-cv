@@ -1,5 +1,4 @@
-use crate::color_space::ColorSpace;
-use crate::image::ImagePixelIter;
+use crate::image::{ImagePixelIter, color_space::ColorSpace};
 use std::ops::Index;
 
 // 行引用结构体

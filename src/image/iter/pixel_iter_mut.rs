@@ -1,4 +1,4 @@
-use crate::color_space::ColorSpace;
+use crate::image::color_space::ColorSpace;
 
 pub struct ImagePixelIterMut<'a, C: ColorSpace> {
     pixels: *mut C::PixelType,

@@ -1,6 +1,6 @@
 use std::ops::{Index, IndexMut};
 
-use crate::pixel::Pixel;
+use crate::image::pixel::Pixel;
 
 // 可变行引用结构体
 pub struct ImageRowMut<'a, P: Pixel> {

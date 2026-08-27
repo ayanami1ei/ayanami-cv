@@ -1,5 +1,5 @@
-use crate::color_space::ColorSpace;
 use crate::image::ImageViewLike;
+use crate::image::color_space::ColorSpace;
 use crate::image::iter::row_iter::ImageRowIter;
 use crate::point::Point;
 

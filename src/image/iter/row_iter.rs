@@ -1,7 +1,4 @@
-use crate::{
-    color_space::ColorSpace,
-    image::{ImageViewLike, view::image_row::ImageRow},
-};
+use crate::image::{ImageViewLike, color_space::ColorSpace, view::image_row::ImageRow};
 
 pub struct ImageRowIter<'a, C: ColorSpace> {
     pixels: Vec<&'a [C::PixelType]>,

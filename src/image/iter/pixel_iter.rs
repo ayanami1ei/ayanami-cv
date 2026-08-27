@@ -1,4 +1,4 @@
-use crate::color_space::ColorSpace;
+use crate::image::color_space::ColorSpace;
 
 pub struct ImagePixelIter<'a, C: ColorSpace> {
     pixels: &'a [C::PixelType],

@@ -1,14 +1,13 @@
-use crate::{
-    color_space::ColorSpace,
-    image::iter::{
+use crate::image::{color_space::ColorSpace, iter::{
         pixel_iter::ImagePixelIter, pixel_iter_mut::ImagePixelIterMut, row_iter::ImageRowIter,
         row_iter_mut::ImageRowIterMut,
-    },
-};
+    }};
 
 pub mod image;
 pub mod iter;
 pub mod view;
+pub mod pixel;
+pub mod color_space;
 
 pub trait ImageViewLike<C: ColorSpace> {
     fn width(&self) -> usize;
