@@ -4,7 +4,7 @@ use crate::{
 };
 
 pub struct ImageRowIter<'a, C: ColorSpace> {
-    pixels: &'a [C::PixelType],
+    pixels: Vec<&'a [C::PixelType]>,
     height: usize,
     width: usize,
     index: usize,
@@ -29,9 +29,7 @@ impl<'a, C: ColorSpace> Iterator for ImageRowIter<'a, C> {
             return None;
         }
 
-        let start = self.index * self.width;
-        let end = start + self.width;
-        let res = &self.pixels[start..end];
+        let res = self.pixels[self.index];
         self.index += 1;
         Some(ImageRow::new(res, self.width))
     }

@@ -18,8 +18,13 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for ImageViewMut<'a, C> {
     fn height(&self) -> usize {
         self.height
     }
-    fn pixel<'b>(&'b self) -> &'b [<C as ColorSpace>::PixelType] {
-        self.data
+    fn pixel<'b>(&'b self) -> Vec<&'b [<C as ColorSpace>::PixelType]> {
+        let mut res=Vec::with_capacity(self.height);
+        for i in 0..self.height{
+            res.push(&self.data[i*self.height..i*self.height+self.width])
+        }
+
+        res
     }
     fn row_iter(&self) -> ImageRowIter<'_, C> {
         ImageRowIter::new(self)

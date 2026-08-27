@@ -13,13 +13,14 @@ pub mod image_view;
 pub mod image_view_mut;
 pub mod iter;
 
+
+
 pub trait ImageViewLike<C: ColorSpace> {
     fn width(&self) -> usize;
     fn height(&self) -> usize;
-    fn pixel<'a>(&'a self) -> &'a [C::PixelType];
+    fn pixel<'a>(&'a self) -> Vec<&'a [C::PixelType]>;
 
     fn row_iter(&self) -> ImageRowIter<'_, C>;
-    //fn pixel_iter(&self) -> ImagePixelIter<'_, C>;
     fn pixel_iter<'a>(&'a self) -> impl Iterator<Item = &'a C::PixelType>
     where
         C: 'a,
