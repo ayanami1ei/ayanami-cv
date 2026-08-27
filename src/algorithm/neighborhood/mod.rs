@@ -6,8 +6,10 @@ use crate::{
 };
 
 pub mod error;
+pub mod filters;
 
 pub trait WindowLike<C: ColorSpace> {
+    const SIZE:usize;
     fn set_index(&mut self, index: usize);
     fn at(&self, x: i32, y: i32) -> C::PixelType;
 }
@@ -31,12 +33,16 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> InteriorWindow<'
 impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> WindowLike<C>
     for InteriorWindow<'a, C, I, SIZE>
 {
+    const SIZE:usize = SIZE;
     fn set_index(&mut self, index: usize) {
         self.index = index;
     }
 
     fn at(&self, x: i32, y: i32) -> C::PixelType {
-        self.data.pixel()[self.index + x as usize][self.index + y as usize]
+        let w = self.data.width();
+        let i = self.index / w;
+        let j = self.index % w;
+        self.data.pixel()[(i as isize + x as isize) as usize][(j as isize + y as isize) as usize]
     }
 }
 
@@ -59,15 +65,22 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> BorderWindow<'a,
 impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> WindowLike<C>
     for BorderWindow<'a, C, I, SIZE>
 {
+    const SIZE:usize = SIZE;
     fn set_index(&mut self, index: usize) {
         self.index = index;
     }
 
     fn at(&self, x: i32, y: i32) -> C::PixelType {
-        if x < 0 || x as usize >= self.data.width() || y < 0 || y as usize >= self.data.height() {
+        let w = self.data.width();
+        let h = self.data.height();
+        let i = self.index / w;
+        let j = self.index % w;
+        let ni = i as isize + x as isize;
+        let nj = j as isize + y as isize;
+        if ni < 0 || ni as usize >= h || nj < 0 || nj as usize >= w {
             return C::PixelType::default();
         }
-        self.data.pixel()[self.index + x as usize][self.index + y as usize]
+        self.data.pixel()[ni as usize][nj as usize]
     }
 }
 
