@@ -89,7 +89,7 @@ impl<'a, C: ColorSpace, I: ImageViewLike<C>, const SIZE: usize> WindowLike<C>
 }
 
 pub trait NeighborhoodAlgorithm{
-    fn process<W: WindowLike<Gray>>(&self, window: &W)->GrayPixel;
+    fn process<W: WindowLike<Gray>>(&mut self, window: &W)->GrayPixel;
 }
 
 pub fn neighborhood<
@@ -101,7 +101,7 @@ pub fn neighborhood<
 >(
     src: &'a I,
     dst: &mut IMut,
-    algor: A,
+    algor:&mut A,
 ) -> Result<(), Error> {
     if SIZE % 2 == 0 {
         return Err(Error::WindowSizeMustBeOdd);

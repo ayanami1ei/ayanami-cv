@@ -68,7 +68,7 @@ mod mean_filter_test {
         }
     }
 
-    fn bench_once<const SIZE: usize>(src: &Image<Gray>, dst: &mut Image<Gray>, f: &MeanFilter) -> Duration {
+    fn bench_once<const SIZE: usize>(src: &Image<Gray>, dst: &mut Image<Gray>, f: &mut MeanFilter) -> Duration {
         let start = Instant::now();
         f.filter::<_, _, SIZE>(src, dst).unwrap();
         start.elapsed()
@@ -85,11 +85,11 @@ mod mean_filter_test {
         fill_random(&mut data, 0x12345678);
         let src = Image::<Gray>::new_from_vec(WIDTH, HEIGHT, data);
         let mut dst = Image::<Gray>::new(WIDTH, HEIGHT);
-        let f = MeanFilter;
+        let mut f = MeanFilter;
 
-        let t3 = bench_once::<3>(&src, &mut dst, &f);
-        let t5 = bench_once::<5>(&src, &mut dst, &f);
-        let t7 = bench_once::<7>(&src, &mut dst, &f);
+        let t3 = bench_once::<3>(&src, &mut dst, &mut f);
+        let t5 = bench_once::<5>(&src, &mut dst, &mut f);
+        let t7 = bench_once::<7>(&src, &mut dst, &mut f);
 
         println!("1920x1080 同尺寸, 核 3x3: {}ms, 5x5: {}ms, 7x7: {}ms", t3.as_millis(), t5.as_millis(), t7.as_millis());
         println!("速度比 3x3:5x5:7x7 = 1 : {:.2} : {:.2}", t5.as_secs_f64() / t3.as_secs_f64(), t7.as_secs_f64() / t3.as_secs_f64());
@@ -113,16 +113,16 @@ mod mean_filter_test {
             data
         });
         let mut dst = Image::<Gray>::new(WIDTH, HEIGHT);
-        let f = MeanFilter;
+        let mut f = MeanFilter;
 
-        let base = bench_once::<3>(&src, &mut dst, &f);
+        let base = bench_once::<3>(&src, &mut dst, &mut f);
 
         println!("同核 3x3, 基准 1920x1080 = {}ms:", base.as_millis());
         let mut prev = base.as_secs_f64();
         for &m in &MULTS[1..] {
             let s = Image::<Gray>::new(WIDTH, HEIGHT * m);
             let mut d = Image::<Gray>::new(WIDTH, HEIGHT * m);
-            let t = bench_once::<3>(&s, &mut d, &f);
+            let t = bench_once::<3>(&s, &mut d, &mut f);
             println!("  {}x 面积 ({}x{}): {}ms, 耗时比 {:.2}x, 预期 {:.2}x", m, WIDTH, HEIGHT * m, t.as_millis(), t.as_secs_f64() / base.as_secs_f64(), m);
             // 面积越大耗时越多，留 0.5 容差
             assert!(t.as_secs_f64() >= prev * 0.5);
@@ -135,7 +135,7 @@ mod mean_filter_test {
         let src = Image::<Gray>::new_from_vec(5, 5, vec![10u8; 25]);
         let mut dst = Image::<Gray>::new(5, 5);
 
-        let f = MeanFilter;
+        let mut f = MeanFilter;
         f.filter::<_, _, 3>(&src, &mut dst).unwrap();
 
         for i in 1..4 {
@@ -151,7 +151,7 @@ mod mean_filter_test {
         src.at_mut((2, 2)).gray = 5;
         let mut dst = Image::<Gray>::new(5, 5);
 
-        let f = MeanFilter;
+        let mut f = MeanFilter;
         f.filter::<_, _, 3>(&src, &mut dst).unwrap();
 
         assert!(collect(&dst).iter().all(|&v| v == 0));
@@ -163,7 +163,7 @@ mod mean_filter_test {
         let src = Image::<Gray>::new_from_vec(3, 3, vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
         let mut dst = Image::<Gray>::new(3, 3);
 
-        let f = MeanFilter;
+        let mut f = MeanFilter;
         f.filter::<_, _, 3>(&src, &mut dst).unwrap();
 
         // 3x3 窗口，超出边界的像素按 0 补零，分母固定为 3*3=9
@@ -176,7 +176,7 @@ mod mean_filter_test {
         let src = Image::<Gray>::new(5, 5);
         let mut dst = Image::<Gray>::new(5, 5);
 
-        let f = MeanFilter;
+        let mut f = MeanFilter;
         let res = f.filter::<_, _, 2>(&src, &mut dst);
 
         assert!(matches!(res, Err(Error::WindowSizeMustBeOdd)));

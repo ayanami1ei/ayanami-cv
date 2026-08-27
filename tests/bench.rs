@@ -78,7 +78,7 @@ mod mean_filter_bench {
         let src = Image::<Gray>::new_from_vec(WIDTH, HEIGHT, data);
         let mut dst = Image::<Gray>::new(WIDTH, HEIGHT);
 
-        let f = MeanFilter;
+        let mut f = MeanFilter;
         let start = Instant::now();
         f.filter::<_, _, SIZE>(&src, &mut dst).unwrap();
         let elapsed: Duration = start.elapsed();

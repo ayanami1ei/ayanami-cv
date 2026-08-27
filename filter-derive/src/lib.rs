@@ -5,19 +5,18 @@ use syn::{ItemStruct,  parse_macro_input};
 #[proc_macro_attribute]
 pub fn filter(_attr: TokenStream, item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item as ItemStruct);
-    let name = input.ident; // 结构体名
+    let name = input.ident.clone(); // 结构体名
 
     // 生成实现代码
     let expanded = quote! {
-        #[derive(Debug, Clone, Copy)]
-        pub struct #name;
+        #input
         impl #name {
             pub fn filter<I: ImageViewLike<Gray>, IMut: ImageViewMutLike<Gray>, const SIZE: usize>(
-                &self,
+                &mut self,
                 src: &I,
                 dst: &mut IMut,
             ) -> Result<(), Error> {
-                neighborhood::<I, IMut, SIZE, #name>(src, dst, *self)
+                neighborhood::<I, IMut, SIZE, #name>(src, dst, self)
             }
         }
     };

@@ -9,7 +9,7 @@ use crate::{
 pub struct MeanFilter;
 
 impl NeighborhoodAlgorithm for MeanFilter {
-    fn process<W: WindowLike<Gray>>(&self, window: &W) -> GrayPixel {
+    fn process<W: WindowLike<Gray>>(&mut self, window: &W) -> GrayPixel {
         let range = (W::SIZE / 2) as i32;
         let mut sum = 0u64;
         for i in -range..=range {
@@ -17,6 +17,8 @@ impl NeighborhoodAlgorithm for MeanFilter {
                 sum += window.at(i, j).gray as u64;
             }
         }
-        GrayPixel { gray: (sum / (W::SIZE * W::SIZE) as u64) as u8 }
+        GrayPixel {
+            gray: (sum / (W::SIZE * W::SIZE) as u64) as u8,
+        }
     }
 }
