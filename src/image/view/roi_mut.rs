@@ -1,8 +1,8 @@
 use crate::color_space::ColorSpace;
 use crate::image::iter::pixel_iter_mut::ImagePixelIterMut;
+use crate::image::iter::row_iter::ImageRowIter;
 use crate::image::iter::row_iter_mut::ImageRowIterMut;
 use crate::image::{ImageViewLike, ImageViewMutLike};
-use crate::image::iter::row_iter::ImageRowIter;
 use crate::point::Point;
 
 pub struct RoiMut<'a, C: ColorSpace> {
@@ -19,9 +19,9 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for RoiMut<'a, C> {
         self.right_down.y - self.left_up.y
     }
     fn pixel<'b>(&'b self) -> Vec<&'b [<C as ColorSpace>::PixelType]> {
-        let mut res=Vec::with_capacity(self.height());
-        for i in 0..self.height(){
-            res.push(&self.data[i*self.height()..i*self.height()+self.width()])
+        let mut res = Vec::with_capacity(self.height());
+        for i in 0..self.height() {
+            res.push(&self.data[i * self.height()..i * self.height() + self.width()])
         }
 
         res
@@ -65,7 +65,7 @@ impl<'a, C: ColorSpace> RoiMut<'a, C> {
         }
     }
 
-    pub fn set_image<I: ImageViewLike<C>>(_image:&'a I){
+    pub fn set_image<I: ImageViewLike<C>>(_image: &'a I) {
         todo!()
     }
 }

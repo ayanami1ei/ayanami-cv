@@ -36,11 +36,11 @@ impl<'a, C: ColorSpace> Roi<'a, C> {
         Self {
             left_up,
             right_down,
-            data:image.pixel(),
+            data: image.pixel(),
         }
     }
 
-    pub fn set_image<I: ImageViewLike<C>>(_image:&'a I){
+    pub fn set_image<I: ImageViewLike<C>>(_image: &'a I) {
         todo!()
     }
 }

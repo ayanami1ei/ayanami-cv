@@ -29,9 +29,9 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for ImageView<'a, C> {
 
 impl<'a, C: ColorSpace> ImageView<'a, C> {
     pub fn new(width: usize, height: usize, vec: &'a [u8]) -> Self {
-        let mut data=Vec::with_capacity(height);
-        for i in 0..height{
-            data.push(bytemuck::cast_slice(&vec[i*height..i*height+width]))
+        let mut data = Vec::with_capacity(height);
+        for i in 0..height {
+            data.push(bytemuck::cast_slice(&vec[i * height..i * height + width]))
         }
         Self {
             width,

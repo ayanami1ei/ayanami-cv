@@ -1,6 +1,6 @@
 use crate::{
     color_space::ColorSpace,
-    image::{ImageViewMutLike, image_row_mut::ImageRowMut},
+    image::{ImageViewMutLike, view::image_row_mut::ImageRowMut},
 };
 
 pub struct ImageRowIterMut<'a, C: ColorSpace> {

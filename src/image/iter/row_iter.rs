@@ -1,6 +1,6 @@
 use crate::{
     color_space::ColorSpace,
-    image::{ImageViewLike, image_row::ImageRow},
+    image::{ImageViewLike, view::image_row::ImageRow},
 };
 
 pub struct ImageRowIter<'a, C: ColorSpace> {

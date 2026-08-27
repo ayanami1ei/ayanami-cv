@@ -19,9 +19,9 @@ impl<'a, C: ColorSpace> ImageViewLike<C> for ImageViewMut<'a, C> {
         self.height
     }
     fn pixel<'b>(&'b self) -> Vec<&'b [<C as ColorSpace>::PixelType]> {
-        let mut res=Vec::with_capacity(self.height);
-        for i in 0..self.height{
-            res.push(&self.data[i*self.height..i*self.height+self.width])
+        let mut res = Vec::with_capacity(self.height);
+        for i in 0..self.height {
+            res.push(&self.data[i * self.height..i * self.height + self.width])
         }
 
         res
