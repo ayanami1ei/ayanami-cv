@@ -4,7 +4,7 @@ pub mod algorithm;
 
 pub use {
     crate::image::{
-        color_space::{Gray, GrayPixel, Rgb, RgbPixel},
+        color_space::{Gray, GrayPixel, Rgb, RgbPixel, Rgba, RgbaPixel},
         ImageViewLike, ImageViewMutLike,
         image::Image,
         view::{
